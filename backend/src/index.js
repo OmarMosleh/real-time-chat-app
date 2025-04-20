@@ -1,0 +1,30 @@
+import express from 'express';
+import authRoutes from './routes/auth.route.js' // don't forget '.js' in local files as we are using type of module
+import dotenv from "dotenv";
+import { connectDB } from './lib/db.js';
+
+
+
+const app = express();
+
+app.use(express.json()) // Middleware to parse JSON bodies
+
+app.use("/api/auth", authRoutes)
+
+
+
+
+
+
+dotenv.config();
+
+
+
+
+const PORT = process.env.PORT
+
+
+app.listen(PORT, ()=>{
+    console.log(`server is running on port ${PORT}`);
+    connectDB();
+})
