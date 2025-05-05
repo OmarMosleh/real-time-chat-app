@@ -5,8 +5,10 @@ import dotenv from "dotenv";
 import { connectDB } from "./lib/db.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import {app, server, io} from "./lib/socket.js"
 
-const app = express();
+dotenv.config();
+ 
 
 app.use(express.json()); // Middleware to parse JSON bodies
 app.use(cookieParser());
@@ -22,11 +24,10 @@ app.use(
 app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);
 
-dotenv.config();
 
 const PORT = process.env.PORT;
 
-app.listen(PORT, () => {
+server.listen(PORT, () => { // we replaced app with server for socket.io
   console.log(`server is running on port ${PORT}`);
   connectDB();
 });
