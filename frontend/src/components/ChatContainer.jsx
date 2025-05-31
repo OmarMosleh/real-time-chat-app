@@ -3,17 +3,28 @@ import { useChatStore } from "../store/useChatStore";
 import ChatHeader from "./ChatHeader";
 import MessageInput from "./MessageInput";
 import MessageSkeleton from "./skeletons/MessageSkeleton";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import avatar from "../assets/tmpImg.jpg"
 import { formatMessageTime } from "../lib/utils";
 const ChatContainer = () => {
+  const endMessageRef = useRef(null)
 
-  const {messages, getMessages, isMessagesLoading, selectedUser} = useChatStore();
+
+
+  const {messages, getMessages, isMessagesLoading, selectedUser, subscribeToMessages, unSubscribeFromMessages } = useChatStore();
   const {authUser} = useAuthStore();
   useEffect(()=>{
     getMessages(selectedUser._id);
+    subscribeToMessages();
 
-  },[selectedUser._id, getMessages])
+    return () => unSubscribeFromMessages();
+
+  },[selectedUser._id, getMessages, subscribeToMessages, unSubscribeFromMessages])
+
+useEffect(()=>{
+  endMessageRef.current?.scrollIntoView({behavior: "smooth"})
+},[messages])
+
 
   if(isMessagesLoading) return (
     <div className="flex-1 flex flex-col overflow-auto">
@@ -30,7 +41,8 @@ const ChatContainer = () => {
       {/* messages part */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.map((message)=>(
-          <div key={message._id} className={`chat ${message.senderId === authUser._id? "chat-end" : "chat-start"}`}>
+          // the ref keeps getting overwritten as React renders each iteration.
+          <div key={message._id} className={`chat ${message.senderId === authUser._id? "chat-end" : "chat-start"}`} ref={endMessageRef} >
               <div className="chat-image avatar">
                 <div className="size-10 rounded-full border">
                   <img src={message.senderId === authUser._id ? authUser.profilePic || avatar : selectedUser.profilePic || avatar} alt="profile-pic"  />
